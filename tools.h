@@ -1,6 +1,6 @@
 #ifndef TOOL_H
     #define TOOL_H
-    #include"./paras/para5.h"
+    #include"./paras.h"
     template<typename T>
     void writetocsv(string filename,T* data,int X,int Y){
         ofstream f(filename);
@@ -33,31 +33,7 @@
         }
         // 如果距离小于 seed , 数据设为 1
     }
-    __global__ void dataprepare_half(half *phi){
-        int x=blockIdx.z%unitdimX*unitx+threadIdx.x;
-        int y=blockIdx.z/unitdimX*unity+threadIdx.y;
-        half(*phid)[dimX]=(half(*)[dimX])phi;
-        float dis1=pow(x-(dimX/2+8),2)+pow(y-(dimY/2+8),2);
-        if(dis1<seed){
-            phid[y][x]=(half)1;
-        }
-    }
-    __global__ void dataprepare_half2(half2 *phi){
-        int x=blockIdx.z%unitdimX*uxd2+threadIdx.x;
-        int y=blockIdx.z/unitdimX*unity+threadIdx.y;
-        half2(*phid)[dimXd2]=(half2(*)[dimXd2])phi;
-        int point1_x=x*2,point2_x=x*2+1;
-        float dis1_point1=pow(point1_x-(dimX/2+8),2)+pow(y-(dimY/2+8),2);
-        float dis1_point2=pow(point2_x-(dimX/2+8),2)+pow(y-(dimY/2+8),2);
-        float phi_point1=0,phi_point2=0;
-        if(dis1_point1<seed){
-            phi_point1=1;
-        }
-        if(dis1_point2<seed){
-            phi_point2=1;
-        }
-        phid[y][x]=__floats2half2_rn(phi_point1,phi_point2);
-    }
+
     __global__ void motivation_monitor2_datasychr(highprecision *now,highprecision *last){
         int x=blockIdx.z%unitdimX*unitx+threadIdx.x;
         int y=blockIdx.z/unitdimX*unity+threadIdx.y;

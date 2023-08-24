@@ -18,9 +18,7 @@ int main(int argc,char* argv[]){
     dataprepare_high<<<grids,blocks>>>(phi); // 启动 CUDA kernal
     // dataprepare_high 函数定义在 tools.h 中
     cudaDeviceSynchronize(); // CPU 等待 GPU 上所有操作全都完成
-    #ifdef Motivation
-         timesteps=timesteps+50;
-    #endif
+    
     #ifdef End2end
         cudaEvent_t start,stop;float elapsed;
         // start, stop : 记录CUDA事件, 用于测量GPU代码执行时间
@@ -60,10 +58,7 @@ int main(int argc,char* argv[]){
             writetocsv(path,phi,dimX,dimY);
         }
     #endif
-    #ifdef Motivation
-        string path=string(argv[1]);
-        writetocsv(path,phi,dimX,dimY);
-    #endif
+    
     CHECK_ERROR(cudaFree(phi));
     CHECK_ERROR(cudaFree(phi_lap));
     CHECK_ERROR(cudaFree(tempr));
