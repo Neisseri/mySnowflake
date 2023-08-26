@@ -36,7 +36,7 @@
         highprecision(*epsilon_derid)[dimX]=(highprecision(*)[dimX])epsilon_deri;
         // 将一维指针转换为二维数组
         
-        phi_lapd[y][x] = 
+        /*phi_lapd[y][x] = 
             phid[y][xs1] / dxdy
             + phid[y][xs2] / dxdy
             + phid[y][xa1] / dxdy
@@ -56,10 +56,33 @@
             + temprd[ys2][x] / dxdy
             + temprd[ya1][x] / dxdy
             + temprd[ya2][x] / dxdy
-            - 8.0 * temprd[y][x] / dxdy;
+            - 8.0 * temprd[y][x] / dxdy;*/
 
-        phidxd[y][x] = (phid[y][xa1] - phid[y][xs1]) / (2.0 * dx);
-        phidyd[y][x] = (phid[ya1][x] - phid[ys1][x]) / (2.0 * dy);
+        phi_lapd[y][x] = phid[y][xs1] - phid[y][x];
+        phi_lapd[y][x] += phid[y][xs2] - phid[y][x];
+        phi_lapd[y][x] += phid[y][xa1] - phid[y][x];
+        phi_lapd[y][x] += phid[y][xa2] - phid[y][x];
+        phi_lapd[y][x] += phid[ys1][x] - phid[y][x];
+        phi_lapd[y][x] += phid[ys2][x] - phid[y][x];
+        phi_lapd[y][x] += phid[ya1][x] - phid[y][x];
+        phi_lapd[y][x] += phid[ya2][x] - phid[y][x];
+
+        tempr_lapd[y][x] = 
+            temprd[y][xs1]
+            + temprd[y][xs2]
+            + temprd[y][xa1]
+            + temprd[y][xa2]
+            + temprd[ys1][x]
+            + temprd[ys2][x]
+            + temprd[ya1][x]
+            + temprd[ya2][x]
+            - 8.0 * temprd[y][x];
+
+        // phidxd[y][x] = (phid[y][xa1] - phid[y][xs1]) / (2.0 * dx);
+        // phidyd[y][x] = (phid[ya1][x] - phid[ys1][x]) / (2.0 * dy);
+        phidxd[y][x] = phid[y][xa1] - phid[y][xs1];
+        phidyd[y][x] = phid[ya1][x] - phid[ys1][x];
+
 
         highprecision theta = atan2(phidyd[y][x], phidxd[y][x]);
         epsilond[y][x] = epsilonb * (1.0 + delta * cos(aniso * (theta - theta0)));
@@ -90,26 +113,22 @@
         highprecision(*tempr_lapd)[dimX] = (highprecision(*)[dimX])tempr_lap;
         highprecision phi_old = phid[y][x];
 
-        highprecision term1 = (
-            epsilond[ya1][x] * epsilon_derid[ya1][x] * phidxd[ya1][x] 
-            - epsilond[ys1][x] * epsilon_derid[ys1][x] * phidxd[ys1][x]
-        ) / (2.0 * dy);
-        highprecision term2 = - (
-            epsilond[y][xa1] * epsilon_derid[y][xa1] * phidyd[y][xa1]
-            - epsilond[y][xs1] * epsilon_derid[y][xs1] * phidyd[y][xs1]
-        ) / (2.0 * dx);
+        highprecision term1 = epsilond[ya1][x] * epsilon_derid[ya1][x] * phidxd[ya1][x]
+            - epsilond[ys1][x] * epsilon_derid[ys1][x] * phidxd[ys1][x];
+        highprecision term2 = - epsilond[y][xa1] * epsilon_derid[y][xa1] * phidyd[y][xa1]
+            + epsilond[y][xs1] * epsilon_derid[y][xs1] * phidyd[y][xs1];
         
         highprecision m = alpha / pi * atan(gama * (teq - temprd[y][x]));
         
         phid[y][x] = phid[y][x] + 
             (dtime / tau) * 
-            (term1 + term2 
-                + pow(epsilond[y][x], 2) * phi_lapd[y][x]
+            ((term1 + term2) / (4.0 * dxdy) 
+                + pow(epsilond[y][x], 2) * phi_lapd[y][x] / dxdy
                 + phi_old * (1.0 - phi_old) * (phi_old - 0.5 + m)
             );
             
         temprd[y][x] = temprd[y][x] 
-            + dtime * tempr_lapd[y][x]
+            + dtime * tempr_lapd[y][x] / dxdy
             + kappa * (phid[y][x] - phi_old);
     }    
 

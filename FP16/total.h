@@ -16,7 +16,7 @@
    using namespace std;
    using namespace nvcuda;
    typedef float highprecision;
-   typedef half lowprecision;
+   // typedef half lowprecision;
    int timesteps=500;
    const int dimX=512,dimY=512;
    const int unitx=16,unity=16,unitdimX=dimX/unitx,unitdimY=dimY/unity,uxd2=unitx/2,uxd2s1=uxd2-1,uxs1=unitx-1,uys1=unity-1,dimXd2=dimX/2,unitNums=unitdimX*unitdimY;
