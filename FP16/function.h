@@ -35,28 +35,6 @@
         highprecision(*epsilond)[dimX]=(highprecision(*)[dimX])epsilon;
         highprecision(*epsilon_derid)[dimX]=(highprecision(*)[dimX])epsilon_deri;
         // 将一维指针转换为二维数组
-        
-        /*phi_lapd[y][x] = 
-            phid[y][xs1] / dxdy
-            + phid[y][xs2] / dxdy
-            + phid[y][xa1] / dxdy
-            + phid[y][xa2] / dxdy
-            + phid[ys1][x] / dxdy
-            + phid[ys2][x] / dxdy
-            + phid[ya1][x] / dxdy
-            + phid[ya2][x] / dxdy
-            - 8.0 * phid[y][x] / dxdy;
-
-        tempr_lapd[y][x] = 
-            temprd[y][xs1] / dxdy
-            + temprd[y][xs2] / dxdy
-            + temprd[y][xa1] / dxdy
-            + temprd[y][xa2] / dxdy
-            + temprd[ys1][x] / dxdy
-            + temprd[ys2][x] / dxdy
-            + temprd[ya1][x] / dxdy
-            + temprd[ya2][x] / dxdy
-            - 8.0 * temprd[y][x] / dxdy;*/
 
         phi_lapd[y][x] = phid[y][xs1] - phid[y][x];
         phi_lapd[y][x] += phid[y][xs2] - phid[y][x];
