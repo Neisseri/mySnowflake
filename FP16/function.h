@@ -54,16 +54,14 @@
             + temprd[ys2][x]
             + temprd[ya1][x]
             + temprd[ya2][x]
-            - 8.0 * temprd[y][x];
+            - __double2half(8.0) * temprd[y][x];
 
-        // phidxd[y][x] = (phid[y][xa1] - phid[y][xs1]) / (2.0 * dx);
-        // phidyd[y][x] = (phid[ya1][x] - phid[ys1][x]) / (2.0 * dy);
         phidxd[y][x] = phid[y][xa1] - phid[y][xs1];
         phidyd[y][x] = phid[ya1][x] - phid[ys1][x];
 
 
-        lowprecision theta = atan2(phidyd[y][x], phidxd[y][x]);
-        epsilond[y][x] = epsilonb * (1.0 + delta * cos(aniso * (theta - theta0)));
+        lowprecision theta = atan2(__half2float(phidyd[y][x]), __half2float(phidxd[y][x]));
+        epsilond[y][x] = epsilonb * (__double2half(1.0) + delta * __float2half(cos(__half2float(aniso * (theta - theta0)))));
         epsilon_derid[y][x] = -epsilonb * aniso * delta * __float2half(sin(__half2float(aniso * (theta - theta0))));
     }
 
