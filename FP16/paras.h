@@ -1,7 +1,7 @@
 #ifndef PARAS
     #define PARAS
     #include "./total.h"
-    const highprecision dx=0.03,dy=0.03,dxdy=dx*dy;
+    const highprecision dx=0.03, dy=0.03, dxdy=dx*dy;
     const highprecision tau = 0.0003; 
     const highprecision epsilonb = 0.01; 
     const highprecision kappa = 1.8; 

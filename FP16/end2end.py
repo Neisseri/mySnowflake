@@ -3,15 +3,15 @@ import sys
 
 datatype = "float"
 
-os.system("rm -rf ./time/FP32")
+os.system("rm -rf ./time")
 # 删除已有记录
 
-resultpath="./result/FP32/"
+resultpath="./result/"
 if not os.path.exists(resultpath):
     os.makedirs(resultpath)
 if not os.path.exists(resultpath+"500.csv"):
     os.mknod(resultpath+"500.csv")
-timepath="./time/FP32/"
+timepath="./time/"
 if not os.path.exists(timepath):
     os.makedirs(timepath)
 if not os.path.exists(timepath+"time.csv"):

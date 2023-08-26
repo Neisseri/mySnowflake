@@ -34,4 +34,14 @@
         // 如果距离小于 seed , 数据设为 1
     }
 
+    __global__ void dataprepare_half(half *phi){
+        int x=blockIdx.z%unitdimX*unitx+threadIdx.x;
+        int y=blockIdx.z/unitdimX*unity+threadIdx.y;
+        half(*phid)[dimX]=(half(*)[dimX])phi;
+        float dis1=pow(x-(dimX/2+8),2)+pow(y-(dimY/2+8),2);
+        if(dis1<seed){
+            phid[y][x]=(half)1;
+        }
+    }
+
 #endif
