@@ -1,21 +1,21 @@
 #include "function.h"
 #include "tools.h"
 int main(int argc,char* argv[]){
-    highprecision *phi,*phi_lap,*tempr,*tempr_lap,*phidx,*phidy,*epsilon,*epsilon_deri;
-    CHECK_ERROR(cudaMallocManaged((void**)&phi,sizeof(highprecision)*dimX*dimY));
-    CHECK_ERROR(cudaMallocManaged((void**)&phi_lap,sizeof(highprecision)*dimX*dimY));
-    CHECK_ERROR(cudaMallocManaged((void**)&tempr,sizeof(highprecision)*dimX*dimY));
-    CHECK_ERROR(cudaMallocManaged((void**)&tempr_lap,sizeof(highprecision)*dimX*dimY));
-    CHECK_ERROR(cudaMallocManaged((void**)&phidx,sizeof(highprecision)*dimX*dimY));
-    CHECK_ERROR(cudaMallocManaged((void**)&phidy,sizeof(highprecision)*dimX*dimY));
-    CHECK_ERROR(cudaMallocManaged((void**)&epsilon,sizeof(highprecision)*dimX*dimY));
-    CHECK_ERROR(cudaMallocManaged((void**)&epsilon_deri,sizeof(highprecision)*dimX*dimY));
+    lowprecision *phi,*phi_lap,*tempr,*tempr_lap,*phidx,*phidy,*epsilon,*epsilon_deri;
+    CHECK_ERROR(cudaMallocManaged((void**)&phi,sizeof(lowprecision)*dimX*dimY));
+    CHECK_ERROR(cudaMallocManaged((void**)&phi_lap,sizeof(lowprecision)*dimX*dimY));
+    CHECK_ERROR(cudaMallocManaged((void**)&tempr,sizeof(lowprecision)*dimX*dimY));
+    CHECK_ERROR(cudaMallocManaged((void**)&tempr_lap,sizeof(lowprecision)*dimX*dimY));
+    CHECK_ERROR(cudaMallocManaged((void**)&phidx,sizeof(lowprecision)*dimX*dimY));
+    CHECK_ERROR(cudaMallocManaged((void**)&phidy,sizeof(lowprecision)*dimX*dimY));
+    CHECK_ERROR(cudaMallocManaged((void**)&epsilon,sizeof(lowprecision)*dimX*dimY));
+    CHECK_ERROR(cudaMallocManaged((void**)&epsilon_deri,sizeof(lowprecision)*dimX*dimY));
     // 分配大小为 dimX * dimY 的二维数组空间
     dim3 blocks(unitx,unity);
     // 二维线程网络中的线程块
     dim3 grids(1,1,unitdimX*unitdimY);
     // 线程网络维度
-    dataprepare_high<<<grids,blocks>>>(phi); // 启动 CUDA kernal
+    dataprepare_half<<<grids,blocks>>>(phi); // 启动 CUDA kernal
     // dataprepare_high 函数定义在 tools.h 中
     cudaDeviceSynchronize(); // CPU 等待 GPU 上所有操作全都完成
     

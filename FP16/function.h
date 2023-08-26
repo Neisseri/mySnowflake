@@ -2,7 +2,7 @@
     #define FUNCTION_H
     #include"./paras.h"
 
-    __global__ void kernel1_pure(highprecision *phi,highprecision* phi_lap,highprecision* tempr,highprecision* tempr_lap,highprecision* phidx,highprecision* phidy,highprecision* epsilon,highprecision* epsilon_deri){
+    __global__ void kernel1_pure(lowprecision *phi,lowprecision* phi_lap,lowprecision* tempr,lowprecision* tempr_lap,lowprecision* phidx,lowprecision* phidy,lowprecision* epsilon,lowprecision* epsilon_deri){
         int unitindex_x = blockIdx.z % unitdimX;
         int unitindex_y = blockIdx.z / unitdimX;
         // 计算线程块在二维线程网络中的索引
@@ -23,17 +23,17 @@
         int ys2 = (y - 2) < 0 ? (y - 2 + dimY) : (y - 2); // s2: (x - 2, y - 2)
         int ya2 = (y + 2) > (dimY - 1) ? (y + 2 - dimY) :(y + 2); // a2: (x + 2, y + 2)
         
-        highprecision(*phid)[dimX]=(highprecision(*)[dimX])phi;
+        lowprecision(*phid)[dimX]=(lowprecision(*)[dimX])phi;
         // 将一维数组转换成二维数组，后续修改 phid 而非 phi
-        highprecision(*phi_lapd)[dimX]=(highprecision(*)[dimX])phi_lap;
+        lowprecision(*phi_lapd)[dimX]=(lowprecision(*)[dimX])phi_lap;
         // 计算像素的拉普拉斯值
-        highprecision(*phidxd)[dimX]=(highprecision(*)[dimX])phidx;
-        highprecision(*phidyd)[dimX]=(highprecision(*)[dimX])phidy;
+        lowprecision(*phidxd)[dimX]=(lowprecision(*)[dimX])phidx;
+        lowprecision(*phidyd)[dimX]=(lowprecision(*)[dimX])phidy;
         // 计算梯度
-        highprecision(*temprd)[dimX]=(highprecision(*)[dimX])tempr;
-        highprecision(*tempr_lapd)[dimX]=(highprecision(*)[dimX])tempr_lap;
-        highprecision(*epsilond)[dimX]=(highprecision(*)[dimX])epsilon;
-        highprecision(*epsilon_derid)[dimX]=(highprecision(*)[dimX])epsilon_deri;
+        lowprecision(*temprd)[dimX]=(lowprecision(*)[dimX])tempr;
+        lowprecision(*tempr_lapd)[dimX]=(lowprecision(*)[dimX])tempr_lap;
+        lowprecision(*epsilond)[dimX]=(lowprecision(*)[dimX])epsilon;
+        lowprecision(*epsilon_derid)[dimX]=(lowprecision(*)[dimX])epsilon_deri;
         // 将一维指针转换为二维数组
 
         phi_lapd[y][x] = phid[y][xs1] - phid[y][x];
@@ -62,12 +62,12 @@
         phidyd[y][x] = phid[ya1][x] - phid[ys1][x];
 
 
-        highprecision theta = atan2(phidyd[y][x], phidxd[y][x]);
+        lowprecision theta = atan2(phidyd[y][x], phidxd[y][x]);
         epsilond[y][x] = epsilonb * (1.0 + delta * cos(aniso * (theta - theta0)));
-        epsilon_derid[y][x] = -epsilonb * aniso * delta * sin(aniso * (theta - theta0));
+        epsilon_derid[y][x] = -epsilonb * aniso * delta * __float2half(sin(__half2float(aniso * (theta - theta0))));
     }
 
-    __global__ void kernel2_pure(highprecision* phi,highprecision* phi_lap,highprecision* epsilon,highprecision *epsilon_deri,highprecision* phidx,highprecision* phidy,highprecision* tempr,highprecision* tempr_lap){
+    __global__ void kernel2_pure(lowprecision* phi,lowprecision* phi_lap,lowprecision* epsilon,lowprecision *epsilon_deri,lowprecision* phidx,lowprecision* phidy,lowprecision* tempr,lowprecision* tempr_lap){
         int unitindex_x = blockIdx.z % unitdimX;
         int unitindex_y = blockIdx.z / unitdimX;
         int x_offset = threadIdx.x;
@@ -81,28 +81,28 @@
         int xa1 = x < (dimX - 1) ? (x + 1) : 0;
         int ya1 = y < (dimY - 1) ? (y + 1) : 0;
         
-        highprecision(*phid)[dimX] = (highprecision(*)[dimX])phi;
-        highprecision(*phi_lapd)[dimX] = (highprecision(*)[dimX])phi_lap;
-        highprecision(*epsilond)[dimX] = (highprecision(*)[dimX])epsilon;
-        highprecision(*epsilon_derid)[dimX] = (highprecision(*)[dimX])epsilon_deri;
-        highprecision(*phidxd)[dimX] = (highprecision(*)[dimX])phidx;
-        highprecision(*phidyd)[dimX] = (highprecision(*)[dimX])phidy;
-        highprecision(*temprd)[dimX] = (highprecision(*)[dimX])tempr;
-        highprecision(*tempr_lapd)[dimX] = (highprecision(*)[dimX])tempr_lap;
-        highprecision phi_old = phid[y][x];
+        lowprecision(*phid)[dimX] = (lowprecision(*)[dimX])phi;
+        lowprecision(*phi_lapd)[dimX] = (lowprecision(*)[dimX])phi_lap;
+        lowprecision(*epsilond)[dimX] = (lowprecision(*)[dimX])epsilon;
+        lowprecision(*epsilon_derid)[dimX] = (lowprecision(*)[dimX])epsilon_deri;
+        lowprecision(*phidxd)[dimX] = (lowprecision(*)[dimX])phidx;
+        lowprecision(*phidyd)[dimX] = (lowprecision(*)[dimX])phidy;
+        lowprecision(*temprd)[dimX] = (lowprecision(*)[dimX])tempr;
+        lowprecision(*tempr_lapd)[dimX] = (lowprecision(*)[dimX])tempr_lap;
+        lowprecision phi_old = phid[y][x];
 
-        highprecision term1 = epsilond[ya1][x] * epsilon_derid[ya1][x] * phidxd[ya1][x]
+        lowprecision term1 = epsilond[ya1][x] * epsilon_derid[ya1][x] * phidxd[ya1][x]
             - epsilond[ys1][x] * epsilon_derid[ys1][x] * phidxd[ys1][x];
-        highprecision term2 = - epsilond[y][xa1] * epsilon_derid[y][xa1] * phidyd[y][xa1]
+        lowprecision term2 = - epsilond[y][xa1] * epsilon_derid[y][xa1] * phidyd[y][xa1]
             + epsilond[y][xs1] * epsilon_derid[y][xs1] * phidyd[y][xs1];
         
-        highprecision m = alpha / pi * atan(gama * (teq - temprd[y][x]));
-        
+        lowprecision m = alpha / __double2half(pi * atan(__half2float(gama * (teq - temprd[y][x]))));
+
         phid[y][x] = phid[y][x] + 
             (dtime / tau) * 
-            ((term1 + term2) / (4.0 * dxdy) 
-                + pow(epsilond[y][x], 2) * phi_lapd[y][x] / dxdy
-                + phi_old * (1.0 - phi_old) * (phi_old - 0.5 + m)
+            ((term1 + term2) / (__double2half(4.0) * dxdy) 
+                + __double2half(pow(__half2float(epsilond[y][x]), 2.0)) * phi_lapd[y][x] / dxdy
+                + phi_old * (__double2half(1.0) - phi_old) * (phi_old - __double2half(0.5) + m)
             );
             
         temprd[y][x] = temprd[y][x] 

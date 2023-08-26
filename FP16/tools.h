@@ -13,9 +13,9 @@
             f<<y<<",";
             for(int x=0;x<X;x++){
                 if(x==X-1){
-                    f<<data[y*X+x]<<"\n";
-                }else{
-                    f<<data[y*X+x]<<",";
+                    f << __half2float(data[y*X+x]) << "\n";
+                } else {
+                    f << __half2float(data[y*X+x])<<",";
                 }
             }
         }
