@@ -5,7 +5,7 @@
     __global__ void kernel1_pure(
             highprecision *phi,
             highprecision* phi_lap,
-            highprecision* tempr,
+            lowprecision* tempr,
             lowprecision* tempr_lap,
             highprecision* phidx,
             highprecision* phidy,
@@ -39,7 +39,7 @@
         highprecision(*phidxd)[dimX]=(highprecision(*)[dimX])phidx;
         highprecision(*phidyd)[dimX]=(highprecision(*)[dimX])phidy;
         // 计算梯度
-        highprecision(*temprd)[dimX]=(highprecision(*)[dimX])tempr;
+        lowprecision(*temprd)[dimX]=(lowprecision(*)[dimX])tempr;
         lowprecision(*tempr_lapd)[dimX]=(lowprecision(*)[dimX])tempr_lap; // half
         highprecision(*epsilond)[dimX]=(highprecision(*)[dimX])epsilon;
         highprecision(*epsilon_derid)[dimX]=(highprecision(*)[dimX])epsilon_deri;
@@ -57,20 +57,26 @@
             - 8.0 * phid[y][x] / dxdy;
 
         half delta_tempr_lapd;
-        delta_tempr_lapd = __float2half(temprd[y][xs1]) / __float2half(dxdy)
-            + __float2half(temprd[y][xs2]) / __float2half(dxdy)
-            + __float2half(temprd[y][xa1]) / __float2half(dxdy)
-            + __float2half(temprd[y][xa2]) / __float2half(dxdy)
-            + __float2half(temprd[ys1][x]) / __float2half(dxdy)
-            + __float2half(temprd[ys2][x]) / __float2half(dxdy)
-            + __float2half(temprd[ya1][x]) / __float2half(dxdy)
-            + __float2half(temprd[ya2][x]) / __float2half(dxdy)
-            - __float2half(8.0) * __float2half(temprd[y][x]) / __float2half(dxdy)
+        half dxdy16 = __float2half(dxdy);
+
+        delta_tempr_lapd = temprd[y][xs1] / dxdy16
+            + temprd[y][xs2] / dxdy16
+            + temprd[y][xa1] / dxdy16
+            + temprd[y][xa2] / dxdy16
+            + temprd[ys1][x] / dxdy16
+            + temprd[ys2][x] / dxdy16
+            + temprd[ya1][x] / dxdy16
+            + temprd[ya2][x] / dxdy16
+            - __float2half(8.0) * temprd[y][x] / dxdy16
             - __float2half(tempr_lapd[y][x]);
 
         tempr_lapd[y][x] += delta_tempr_lapd;
 
-        phidxd[y][x] = (phid[y][xa1] - phid[y][xs1]) / (2.0 * dx);
+        lowprecision delta_phidxd;
+        delta_phidxd = __float2half(
+            (phid[y][xa1] - phid[y][xs1]) / (2.0 * dx) - phidxd[y][x]
+        );
+        phidxd[y][x] += __half2float(delta_phidxd);
         phidyd[y][x] = (phid[ya1][x] - phid[ys1][x]) / (2.0 * dy);
 
         highprecision theta = atan2(phidyd[y][x], phidxd[y][x]);
@@ -87,7 +93,7 @@
             highprecision *epsilon_deri,
             highprecision* phidx,
             highprecision* phidy,
-            highprecision* tempr,
+            lowprecision* tempr,
             lowprecision* tempr_lap
     ){
         int unitindex_x = blockIdx.z % unitdimX;
@@ -109,7 +115,7 @@
         highprecision(*epsilon_derid)[dimX] = (highprecision(*)[dimX])epsilon_deri;
         highprecision(*phidxd)[dimX] = (highprecision(*)[dimX])phidx;
         highprecision(*phidyd)[dimX] = (highprecision(*)[dimX])phidy;
-        highprecision(*temprd)[dimX] = (highprecision(*)[dimX])tempr;
+        lowprecision(*temprd)[dimX] = (lowprecision(*)[dimX])tempr;
         lowprecision(*tempr_lapd)[dimX] = (lowprecision(*)[dimX])tempr_lap;
         highprecision phi_old = phid[y][x];
         highprecision deltaphi;
@@ -125,7 +131,7 @@
         
         highprecision m = __half2float(
             __float2half(alpha) / __float2half(pi) 
-            * __float2half(atan(gama * (teq - temprd[y][x])))
+            * __float2half(atan(gama * (teq - __half2float(temprd[y][x]))))
         );
         
         deltaphi = (dtime / tau) * 
@@ -135,10 +141,10 @@
             );
         phid[y][x] = phid[y][x] + deltaphi; 
             
-        temprd[y][x] = temprd[y][x] 
-            + __half2float(__float2half(dtime) * tempr_lapd[y][x]
-            + __float2half(kappa * (phid[y][x] - phi_old))
-        );
+        half delta_temprd = __float2half(dtime) * tempr_lapd[y][x]
+            + __float2half(kappa * (phid[y][x] - phi_old));
+
+        temprd[y][x] = temprd[y][x] + delta_temprd;
     }    
 
 #endif

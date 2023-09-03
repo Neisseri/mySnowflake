@@ -1,11 +1,11 @@
 #include "function.h"
 #include "tools.h"
 int main(int argc,char* argv[]){
-    highprecision *phi,*phi_lap,*tempr,*phidx,*phidy,*epsilon,*epsilon_deri;
-    lowprecision *tempr_lap;
+    highprecision *phi,*phi_lap, *phidx,*phidy,*epsilon,*epsilon_deri;
+    lowprecision *tempr_lap, *tempr;
     CHECK_ERROR(cudaMallocManaged((void**)&phi,sizeof(highprecision)*dimX*dimY));
     CHECK_ERROR(cudaMallocManaged((void**)&phi_lap,sizeof(highprecision)*dimX*dimY));
-    CHECK_ERROR(cudaMallocManaged((void**)&tempr,sizeof(highprecision)*dimX*dimY));
+    CHECK_ERROR(cudaMallocManaged((void**)&tempr,sizeof(lowprecision)*dimX*dimY));
     CHECK_ERROR(cudaMallocManaged((void**)&tempr_lap,sizeof(lowprecision)*dimX*dimY));
     CHECK_ERROR(cudaMallocManaged((void**)&phidx,sizeof(highprecision)*dimX*dimY));
     CHECK_ERROR(cudaMallocManaged((void**)&phidy,sizeof(highprecision)*dimX*dimY));
