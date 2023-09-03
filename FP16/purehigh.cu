@@ -24,6 +24,7 @@ int main(int argc,char* argv[]){
     // elapsed : 存储代码执行时间
 
     for(int i=0;i<timesteps;i++){
+        // timesteps = 500
         if(i==5){
             CHECK_ERROR(cudaEventCreate(&start));
             CHECK_ERROR(cudaEventCreate(&stop)); // 创建 CUDA 事件
@@ -52,7 +53,7 @@ int main(int argc,char* argv[]){
     if(string(argv[1])=="4"){
         string path=string(argv[2]);
         writetocsv(path,phi,dimX,dimY);
-    }
+    } // 把最后一次的结果输出到result
     
     CHECK_ERROR(cudaFree(phi));
     CHECK_ERROR(cudaFree(phi_lap));

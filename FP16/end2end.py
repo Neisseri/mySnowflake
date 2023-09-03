@@ -25,7 +25,7 @@ if os.system("nvcc purehigh.cu -o purehigh --std=c++11 -arch=sm_80 -w")==0:
     for i in range(5):
         os.system("./purehigh "+str(i)+" "+resultpath+"500.csv")
         # 执行 purehigh 程序并传入参数
-        # print("###", "./purehigh "+str(i)+" "+resultpath+"500.csv")
+        # ./purehigh str(i) resultpath500.csv
         ftime=open("time_tmp.csv","r+")
         time=ftime.read()
         ftime.close()

@@ -36,14 +36,26 @@
         lowprecision(*epsilon_derid)[dimX]=(lowprecision(*)[dimX])epsilon_deri;
         // 将一维指针转换为二维数组
 
-        phi_lapd[y][x] = phid[y][xs1] - phid[y][x];
+        /*phi_lapd[y][x] = phid[y][xs1] - phid[y][x];
         phi_lapd[y][x] += phid[y][xs2] - phid[y][x];
         phi_lapd[y][x] += phid[y][xa1] - phid[y][x];
         phi_lapd[y][x] += phid[y][xa2] - phid[y][x];
         phi_lapd[y][x] += phid[ys1][x] - phid[y][x];
         phi_lapd[y][x] += phid[ys2][x] - phid[y][x];
         phi_lapd[y][x] += phid[ya1][x] - phid[y][x];
-        phi_lapd[y][x] += phid[ya2][x] - phid[y][x];
+        phi_lapd[y][x] += phid[ya2][x] - phid[y][x];*/
+
+        phi_lapd[y][x] = 
+            phid[y][xs1] / dxdy
+            + phid[y][xs2] / dxdy
+            + phid[y][xa1] / dxdy
+            + phid[y][xa2] / dxdy
+            + phid[ys1][x] / dxdy
+            + phid[ys2][x] / dxdy
+            + phid[ya1][x] / dxdy
+            + phid[ya2][x] / dxdy
+            - 8.0 * phid[y][x] / dxdy;
+        // dxdy = 0.0009
 
         tempr_lapd[y][x] = 
             temprd[y][xs1]
@@ -106,6 +118,6 @@
         temprd[y][x] = temprd[y][x] 
             + dtime * tempr_lapd[y][x] / dxdy
             + kappa * (phid[y][x] - phi_old);
-    }    
+    }
 
 #endif
