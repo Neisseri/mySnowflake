@@ -1,14 +1,14 @@
 #include "function.h"
 #include "tools.h"
 int main(int argc,char* argv[]){
-    highprecision *phi,*phi_lap, *phidx,*phidy,*epsilon,*epsilon_deri;
-    lowprecision *tempr_lap, *tempr;
+    highprecision *phi,*phi_lap, *epsilon,*epsilon_deri;
+    lowprecision *tempr_lap, *tempr, *phidx, *phidy;
     CHECK_ERROR(cudaMallocManaged((void**)&phi,sizeof(highprecision)*dimX*dimY));
     CHECK_ERROR(cudaMallocManaged((void**)&phi_lap,sizeof(highprecision)*dimX*dimY));
     CHECK_ERROR(cudaMallocManaged((void**)&tempr,sizeof(lowprecision)*dimX*dimY));
     CHECK_ERROR(cudaMallocManaged((void**)&tempr_lap,sizeof(lowprecision)*dimX*dimY));
-    CHECK_ERROR(cudaMallocManaged((void**)&phidx,sizeof(highprecision)*dimX*dimY));
-    CHECK_ERROR(cudaMallocManaged((void**)&phidy,sizeof(highprecision)*dimX*dimY));
+    CHECK_ERROR(cudaMallocManaged((void**)&phidx,sizeof(lowprecision)*dimX*dimY));
+    CHECK_ERROR(cudaMallocManaged((void**)&phidy,sizeof(lowprecision)*dimX*dimY));
     CHECK_ERROR(cudaMallocManaged((void**)&epsilon,sizeof(highprecision)*dimX*dimY));
     CHECK_ERROR(cudaMallocManaged((void**)&epsilon_deri,sizeof(highprecision)*dimX*dimY));
     // 分配大小为 dimX * dimY 的二维数组空间

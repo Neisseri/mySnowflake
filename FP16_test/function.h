@@ -7,8 +7,8 @@
             highprecision* phi_lap,
             lowprecision* tempr,
             lowprecision* tempr_lap,
-            highprecision* phidx,
-            highprecision* phidy,
+            lowprecision* phidx,
+            lowprecision* phidy,
             highprecision* epsilon,
             highprecision* epsilon_deri
     ){
@@ -36,8 +36,8 @@
         // 将一维数组转换成二维数组，后续修改 phid 而非 phi
         highprecision(*phi_lapd)[dimX]=(highprecision(*)[dimX])phi_lap;
         // 计算像素的拉普拉斯值
-        highprecision(*phidxd)[dimX]=(highprecision(*)[dimX])phidx;
-        highprecision(*phidyd)[dimX]=(highprecision(*)[dimX])phidy;
+        lowprecision(*phidxd)[dimX]=(lowprecision(*)[dimX])phidx;
+        lowprecision(*phidyd)[dimX]=(lowprecision(*)[dimX])phidy;
         // 计算梯度
         lowprecision(*temprd)[dimX]=(lowprecision(*)[dimX])tempr;
         lowprecision(*tempr_lapd)[dimX]=(lowprecision(*)[dimX])tempr_lap; // half
@@ -72,14 +72,11 @@
 
         tempr_lapd[y][x] += delta_tempr_lapd;
 
-        lowprecision delta_phidxd;
-        delta_phidxd = __float2half(
-            (phid[y][xa1] - phid[y][xs1]) / (2.0 * dx) - phidxd[y][x]
-        );
-        phidxd[y][x] += __half2float(delta_phidxd);
-        phidyd[y][x] = (phid[ya1][x] - phid[ys1][x]) / (2.0 * dy);
+        phidxd[y][x] = __float2half((phid[y][xa1] - phid[y][xs1]) / (2.0 * dx));
 
-        highprecision theta = atan2(phidyd[y][x], phidxd[y][x]);
+        phidyd[y][x] = __float2half((phid[ya1][x] - phid[ys1][x]) / (2.0 * dy));
+
+        highprecision theta = atan2(__half2float(phidyd[y][x]), __half2float(phidxd[y][x]));
         epsilond[y][x] = __half2float(
             __float2half(epsilonb) * 
             (__float2half(1.0) + __float2half(delta) * __float2half(cos(aniso * (theta - theta0)))));
@@ -91,8 +88,8 @@
             highprecision* phi_lap,
             highprecision* epsilon,
             highprecision *epsilon_deri,
-            highprecision* phidx,
-            highprecision* phidy,
+            lowprecision* phidx,
+            lowprecision* phidy,
             lowprecision* tempr,
             lowprecision* tempr_lap
     ){
@@ -113,20 +110,20 @@
         highprecision(*phi_lapd)[dimX] = (highprecision(*)[dimX])phi_lap;
         highprecision(*epsilond)[dimX] = (highprecision(*)[dimX])epsilon;
         highprecision(*epsilon_derid)[dimX] = (highprecision(*)[dimX])epsilon_deri;
-        highprecision(*phidxd)[dimX] = (highprecision(*)[dimX])phidx;
-        highprecision(*phidyd)[dimX] = (highprecision(*)[dimX])phidy;
+        lowprecision(*phidxd)[dimX] = (lowprecision(*)[dimX])phidx;
+        lowprecision(*phidyd)[dimX] = (lowprecision(*)[dimX])phidy;
         lowprecision(*temprd)[dimX] = (lowprecision(*)[dimX])tempr;
         lowprecision(*tempr_lapd)[dimX] = (lowprecision(*)[dimX])tempr_lap;
         highprecision phi_old = phid[y][x];
         highprecision deltaphi;
 
         highprecision term1 = (
-            epsilond[ya1][x] * epsilon_derid[ya1][x] * phidxd[ya1][x] 
-            - epsilond[ys1][x] * epsilon_derid[ys1][x] * phidxd[ys1][x]
+            epsilond[ya1][x] * epsilon_derid[ya1][x] * __half2float(phidxd[ya1][x]) 
+            - epsilond[ys1][x] * epsilon_derid[ys1][x] * __half2float(phidxd[ys1][x])
         ) / (2.0 * dy);
         highprecision term2 = - __half2float((
-            __float2half(epsilond[y][xa1]) * __float2half(epsilon_derid[y][xa1]) * __float2half(phidyd[y][xa1])
-            - __float2half(epsilond[y][xs1]) * __float2half(epsilon_derid[y][xs1]) * __float2half(phidyd[y][xs1])
+            __float2half(epsilond[y][xa1]) * __float2half(epsilon_derid[y][xa1]) * phidyd[y][xa1]
+            - __float2half(epsilond[y][xs1]) * __float2half(epsilon_derid[y][xs1]) * phidyd[y][xs1]
         ) / (__float2half(2.0) * __float2half(dx)));
         
         highprecision m = __half2float(
